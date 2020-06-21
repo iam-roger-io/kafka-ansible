@@ -1,0 +1,24 @@
+[Unit]
+Description=Apache Kafka server (broker)
+Documentation=http://kafka.apache.org/documentation.html
+
+[Service]
+User={{ kafka_user }}
+Group={{ kafka_user }}
+{% if kafka_heap_opts is defined and kafka_heap_opts|length %}
+Environment="KAFKA_HEAP_OPTS={{ kafka_heap_opts }}"
+{% endif %}
+{% if kafka_jmx_opts is defined and  kafka_jmx_opts|length %}
+Environment="KAFKA_JMX_OPTS={{ kafka_jmx_opts }}"
+{% endif %} 
+{% if kafka_gc_log_opts is defined and kafka_gc_log_opts is not none %}
+Environment="KAFKA_GC_LOG_OPTS={{ kafka_gc_log_opts }}"
+{% endif %}
+{% if kafka_opts is defined and  kafka_opts is not none  %}
+Environment="KAFKA_OPTS={{ kafka_opts }}"
+{% endif %}
+Type=simple
+ExecStart={{ kafka_symlink }}/bin/kafka-server-start.sh {{ kafka_symlink }}/config/server.properties
+ExecStop={{ kafka_symlink }}/bin/kafka-server-stop.sh
+[Install]
+WantedBy=multi-user.target

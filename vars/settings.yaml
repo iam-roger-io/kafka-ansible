@@ -1,0 +1,54 @@
+
+#Source 
+install_package_name: amq-streams-1.4.1-bin.zip
+install_package_folder: /tmp
+
+#environment
+jvm_package: java-1.8.0-openjdk-devel
+
+#KAFKA
+kafka_install_folder:  /opt/redhat
+kafka_user: kafka
+kafka_symlink: /opt/kafka
+
+#KAFKA JVM
+kafka_heap_opts: -Xmx256M -Xms128M
+kafka_jmx_opts: -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.net.preferIPv4Stack=true -Dcom.sun.management.jmxremote.port=9990
+kafka_gc_log_opts: 
+kafka_opts:
+
+#KAFKA server.properties
+kafka_auto_create_topics_enable: true 
+kafka_log_dirs: /var/lib/kafka
+kafka_listeners_port: 9092
+kafka_advertised_listeners:
+kafka_num_network_threads: 3
+kafka_num_io_threads: 8
+kafka_num_partitions: 3
+kafka_offsets_topic_replication_factor: 1
+kafka_transaction_tate_log_replication_factor: 1
+kafka_transaction_state_log_min_isr: 1
+#kafka_log_flush_interval_messages:
+#kafka_log_flush_interval_ms:
+kafka_log_retention_hours: 168
+#kafka_log_retention_bytes:
+kafka_log_segment_bytes: 1073741824
+kafka_log_retention_check_interval_ms: 300000
+kafka_zookeeper_connection_timeout_ms: 6000
+kafka_group_initial_rebalance_delay_ms: 0
+kafka_socket_send_buffer_bytes: 102400
+kafka_socket_receive_buffer_bytes: 102400
+kafka_socket_request_max_bytes: 104857600
+kafka_ssl_keystore_location:
+kafka_ssl_keystore_password:
+kafka_ssl_key_password:
+kafka_ssl_truststore_location:
+kafka_ssl_truststore_password:
+
+
+#ZOOKEEPER
+zookeeper_data_dir: /var/lib/zookeeper
+zookeeper_port: 2181
+zookeeper_init_limit: 5
+zookeeper_sync_limit: 2
+

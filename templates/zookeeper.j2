@@ -1,0 +1,15 @@
+[Unit]
+Description=Apache Zookeeper server
+Documentation=http://zookeeper.apache.org
+Requires=network.target remote-fs.target
+After=network.target remote-fs.target
+
+[Service]
+User={{ kafka_user }}
+Group={{ kafka_user }}
+Type=simple
+ExecStart={{ kafka_symlink }}/bin/zookeeper-server-start.sh {{ kafka_symlink }}/config/zookeeper.properties
+ExecStop={{ kafka_symlink }}/bin/zookeeper-server-stop.sh
+
+[Install]
+WantedBy=multi-user.target

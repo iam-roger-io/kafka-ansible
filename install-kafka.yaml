@@ -1,0 +1,191 @@
+# Rogerio L Santos
+
+---
+# PREPARE ALL HOSTS
+
+- hosts: all  
+  vars_files:
+    - vars/settings.yaml
+
+  tasks:    
+  - name: disable firewall
+    systemd:
+      name: firewalld
+      state: stopped
+      enabled: false
+      masked: no   
+
+  - name: Create group "{{ kafka_user }}" 
+    group:
+      name: "{{ kafka_user }}"
+      state: present
+
+  - name: Create user '{{ kafka_user }}'
+    user:
+      name: "{{ kafka_user }}"
+      password: NOT_LOGGING_PASSWORD
+      group: "{{ kafka_user }}"
+
+  - name: 'Install unzip'
+    yum:
+      name: unzip
+      state: latest
+    become: yes
+
+  - name: 'Install JVM: {{ jvm_package }}'
+    yum:
+      name: "{{ jvm_package }}" 
+      state: latest
+    become: yes    
+
+#  - name: 'Install rsync'
+#    yum:
+#      name: rsync
+#      state: latest
+#    become: yes
+ 
+  - name: "Create installation folder {{ kafka_install_folder }}"
+    file:
+      path: "{{ kafka_install_folder }}"
+      state: directory
+      mode: 0755
+      group: "{{ kafka_user }}"
+      owner: "{{ kafka_user }}" 
+
+  - name: Copy kafka package to remote server
+    copy: src={{install_package_folder}}/{{ install_package_name }} dest={{ kafka_install_folder }}
+    become: yes    
+
+  - name: Unzip kafka package "{{ kafka_install_folder }}/{{ install_package_name }}"
+    unarchive:
+      src: "{{ kafka_install_folder }}/{{ install_package_name }}"
+      dest: "{{ kafka_install_folder }}"      
+      remote_src: yes
+      list_files: yes
+    register: unarchived_list
+
+  - name: Removing {{ kafka_install_folder }}/{{ install_package_name }}
+    file:
+      path: "{{ kafka_install_folder }}/{{ install_package_name }}"
+      state: absent      
+    become: yes
+
+  - name: Create symbolic link {{ kafka_symlink }} for {{kafka_install_folder}}/{{ unarchived_list.files[0] }}
+    file:
+      src: "{{kafka_install_folder}}/{{ unarchived_list.files[0] }}"
+      dest: "/opt/kafka"
+      state: link 
+
+  - name: Change user and group for symblink {{ kafka_symlink }}
+    command: chown -R kafka:kafka {{ kafka_symlink }}
+    become: true 
+
+  - name: Set KAFKA_HOME={{ kafka_symlink }} in  /home/{{ kafka_user }}/.bashrc
+    lineinfile: 
+      dest: /home/{{ kafka_user }}/.bashrc
+      line: "export KAFKA_HOME={{ kafka_symlink }}"
+
+  - name: Source Bashrc
+    action: shell source /home/kafka/.bashrc    
+
+##  SET ZOOKEEPER SERVERS
+
+- hosts: zookeeper  
+  vars_files:
+    - vars/settings.yaml
+  
+  tasks:    
+  
+  - name: "Create data folder for zookeeper {{ zookeeper_data_dir }}"
+    file:
+      path: "{{ zookeeper_data_dir }}"
+      state: directory
+      mode: 0755
+      group: "{{ kafka_user }}"
+      owner: "{{ kafka_user }}" 
+
+  - name: Create file zookeeper.properties
+    template:
+      src: templates/zookeeper-properties.j2
+      dest: "{{ kafka_symlink }}/config/zookeeper.properties"      
+      mode: 0755
+
+  - name: Create file zookeeper.service
+    template:
+      src: templates/zookeeper.j2
+      dest: /etc/systemd/system/zookeeper.service      
+      mode: 0755
+
+  - name: Create myid file and insert the node id.
+    lineinfile:
+      path: "{{ zookeeper_data_dir }}/myid"
+      line: "{{ groups.zookeeper.index(inventory_hostname)+1 }}"
+      create: yes
+
+  - name: just force systemd to reread configs (2.4 and above)
+    systemd:
+      daemon_reload: yes
+
+  - name: enable service zookeeper.service and ensure it is not masked
+    systemd:
+      name: zookeeper.service
+      enabled: yes
+      masked: no    
+
+  - name: Start zookeeper
+    service:
+      name: zookeeper.service
+      state: started      
+
+##  SET KAFKA BROKERS     
+
+- hosts: kafka  
+  vars_files:
+    - vars/settings.yaml
+
+  tasks: 
+
+  - name: "Create data folder for kafka {{ kafka_log_dirs }}"
+    file:
+      path: "{{ kafka_log_dirs }}"
+      state: directory
+      mode: 0755
+      group: "{{ kafka_user }}"
+      owner: "{{ kafka_user }}"       
+
+  - name: Create file {{ kafka_symlink }}/config/server.properties
+    template:
+      src: templates/server-properties.j2
+      dest: "{{ kafka_symlink }}/config/server.properties"         
+      mode: 0755
+
+  - set_fact: 
+      zookeeper_connect: "{{ groups.zookeeper | join(':{{ zookeeper_port }},') }}:{{ zookeeper_port }}"
+      rendered_template: "{{ lookup('template', 'templates/server-properties.j2') }}"
+
+  - name: Set zookeeper hosts in server.properties
+    replace:
+      path: "{{ kafka_symlink }}/config/server.properties"
+      regexp: 'zookeeper.connect=localhost:2181'
+      replace: "zookeeper.connect={{ zookeeper_connect }}"
+
+  - name: Create file kafka.service
+    template:
+      src: templates/kafka.j2
+      dest: /etc/systemd/system/kafka.service      
+      mode: 0755
+
+  - name: Force systemd to reread configs (2.4 and above)
+    systemd:
+      daemon_reload: yes    
+
+  - name: Enable service kafka.service and ensure it is not masked
+    systemd:
+      name: kafka.service
+      enabled: yes
+      masked: no        
+
+  - name: Start kafka
+    service:
+      name: kafka.service
+      state: started      
