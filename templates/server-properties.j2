@@ -38,7 +38,14 @@ listeners=PLAINTEXT://{{ inventory_hostname }}:{{ kafka_listeners_port }}
 {% if kafka_advertised_listeners is defined and kafka_advertised_listeners is not none  %}
 advertised.listeners={{ kafka_advertised_listeners }}
 {% endif %}
-
+{% if kafka_advertised_host_name is defined and kafka_advertised_host_name is not none  %}
+#DEPRECATED: only used when advertised.listeners or listeners are not set. Use advertised.listeners instead.
+advertised.host.name={{ kafka_advertised_host_name }}
+{% endif %}
+{% if kafka_advertised_port is defined and kafka_advertised_port is not none  %}
+#DEPRECATED: only used when advertised.listeners or listeners are not set. Use advertised.listeners instead
+advertised.port={{ kafka_advertised_port }}
+{% endif %}
 
 # Maps listener names to security protocols, the default is for them to be the same. See the config documentation for more details
 #listener.security.protocol.map=PLAINTEXT:PLAINTEXT,SSL:SSL,SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_SSL:SASL_SSL
@@ -147,23 +154,9 @@ zookeeper.connection.timeout.ms={{ kafka_zookeeper_connection_timeout_ms }}
 # However, in production environments the default value of 3 seconds is more suitable as this will help to avoid unnecessary, and potentially expensive, rebalances during application startup.
 group.initial.rebalance.delay.ms={{ kafka_group_initial_rebalance_delay_ms }}
 
-{% if kafka_auto_create_topics_enable is defined and kafka_auto_create_topics_enable is not none  %}
-auto.create.topics.enable={{ kafka_auto_create_topics_enable }}
+# KAFKA server.properties [2]:
+{% for item in kafka_properties %}
+{% if item.value is not none  %}
+{{ item.key | replace("kafka_", "") | replace("_", ".") }}={{ item.value}}
 {% endif %}
-
-# SSL 
-{% if kafka_ssl_keystore_location is defined and kafka_ssl_keystore_location is not none  %}
-ssl.keystore.location={{ kafka_ssl_keystore_location }}
-{% endif %}
-{% if kafka_ssl_keystore_password is defined and kafka_ssl_keystore_password is not none  %}
-ssl.keystore.password={{ kafka_ssl_keystore_password }}
-{% endif %}
-{% if kafka_ssl_key_password is defined and kafka_ssl_key_password is not none  %}
-ssl.key.password={{ kafka_ssl_key_password }}
-{% endif %}
-{% if kafka_ssl_truststore_location is defined and kafka_ssl_truststore_location is not none  %}
-ssl.truststore.location={{ kafka_ssl_truststore_location }}
-{% endif %}
-{% if kafka_ssl_truststore_password is defined and kafka_ssl_truststore_password is not none  %}
-ssl.truststore.password={{ kafka_ssl_truststore_password }}
-{% endif %}
+{% endfor %}

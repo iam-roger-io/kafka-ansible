@@ -17,8 +17,7 @@ kafka_jmx_opts: -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremo
 kafka_gc_log_opts: 
 kafka_opts:
 
-#KAFKA server.properties
-kafka_auto_create_topics_enable: true 
+#KAFKA server.properties: Commom properties with default values
 kafka_log_dirs: /var/lib/kafka
 kafka_listeners_port: 9092
 kafka_advertised_listeners:
@@ -39,12 +38,31 @@ kafka_group_initial_rebalance_delay_ms: 0
 kafka_socket_send_buffer_bytes: 102400
 kafka_socket_receive_buffer_bytes: 102400
 kafka_socket_request_max_bytes: 104857600
-kafka_ssl_keystore_location:
-kafka_ssl_keystore_password:
-kafka_ssl_key_password:
-kafka_ssl_truststore_location:
-kafka_ssl_truststore_password:
 
+# Extra settings. See https://kafka.apache.org/documentation/
+# include the prefix kafka_ in the attribute and change "." for "_"
+#
+kafka_properties: 
+  - key: kafka_auto_create_topics_enable
+    value: true 
+  - key: kafka_ssl_keystore_location
+    value: 
+  - key: kafka_ssl_keystore_password
+    value: 
+  - key: kafka_ssl_key_password
+    value: 
+  - key: kafka_ssl_truststore_location
+    value: 
+  - key: kafka_ssl_truststore_password
+    value: 
+  - key: kafka_auto_leader_rebalance_enable
+    value:       
+  - key: kafka_background_threads
+    value:       
+  - key: kafka_control_plane_listener_name
+    value:             
+  - key: kafka_delete_topic_enable
+    value:                   
 
 #ZOOKEEPER
 zookeeper_data_dir: /var/lib/zookeeper
