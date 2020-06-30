@@ -17,7 +17,8 @@ kafka_jmx_opts: -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremo
 kafka_gc_log_opts: 
 kafka_opts:
 
-#KAFKA server.properties: Commom properties with default values
+# KAFKA server.properties [1]
+# Commom properties with default values
 kafka_log_dirs: /var/lib/kafka
 kafka_listeners_port: 9092
 kafka_advertised_listeners:
@@ -39,6 +40,8 @@ kafka_socket_send_buffer_bytes: 102400
 kafka_socket_receive_buffer_bytes: 102400
 kafka_socket_request_max_bytes: 104857600
 
+# 
+# KAFKA server.properties [2]:
 # Extra settings. See https://kafka.apache.org/documentation/
 # include the prefix kafka_ in the attribute and change "." for "_"
 #

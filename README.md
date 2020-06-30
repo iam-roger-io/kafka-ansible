@@ -16,7 +16,7 @@ Example:
          kafka_auto_create_topics_enable
 
 
-There are 2  gropus of properties for **kafka.properties** in the file.
+There are 2  gropus of properties for **server.properties** in the file.
 
  -   KAFKA server.properties [1]: Common and default properties of
    server.properties original.
