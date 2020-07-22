@@ -67,7 +67,7 @@ kafka_properties:
   - key: kafka_delete_topic_enable
     value:                   
 
-#ZOOKEEPER
+#ZOOKEEPER Zookeeper.properties
 zookeeper_data_dir: /var/lib/zookeeper
 zookeeper_port: 2181
 zookeeper_init_limit: 5
