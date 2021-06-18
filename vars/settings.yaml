@@ -1,15 +1,17 @@
 
 #Source 
-install_package_name: amq-streams-1.4.1-bin.zip
-install_package_folder: /tmp
+kafka_install_package_name: amq-streams-1.7.0-bin.zip
 
-#environment
-jvm_package: java-1.8.0-openjdk-devel
+#temporary folder to copy the install package in the host.
+kafka_install_package_source_folder: /tmp
 
-#KAFKA
-kafka_install_folder:  /opt/redhat
+#KAFKA Settings.
+kafka_install_package_host_folder: /opt/redhat
+kafka_install_host_symlink: /opt/kafka
 kafka_user: kafka
-kafka_symlink: /opt/kafka
+
+#JVM for Kafka and Zookeeper.
+jvm_package: java-1.8.0-openjdk-devel
 
 #KAFKA JVM
 kafka_heap_opts: -Xmx256M -Xms128M
@@ -28,10 +30,7 @@ kafka_num_partitions: 3
 kafka_offsets_topic_replication_factor: 1
 kafka_transaction_tate_log_replication_factor: 1
 kafka_transaction_state_log_min_isr: 1
-#kafka_log_flush_interval_messages:
-#kafka_log_flush_interval_ms:
 kafka_log_retention_hours: 168
-#kafka_log_retention_bytes:
 kafka_log_segment_bytes: 1073741824
 kafka_log_retention_check_interval_ms: 300000
 kafka_zookeeper_connection_timeout_ms: 6000
@@ -43,7 +42,7 @@ kafka_socket_request_max_bytes: 104857600
 # 
 # KAFKA server.properties [2]:
 # Extra settings. See https://kafka.apache.org/documentation/
-# include the prefix kafka_ in the attribute and change "." for "_"
+# included the prefix kafka_ in the attribute and change "." for "_"
 #
 kafka_properties: 
   - key: kafka_auto_create_topics_enable
@@ -73,3 +72,16 @@ zookeeper_port: 2181
 zookeeper_init_limit: 5
 zookeeper_sync_limit: 2
 
+### kafka bridge ### 
+
+kafka_bridge_install_package_name: amq-streams-1.7.0-bridge-bin.zip
+kafka_bridge_install_package_source_folder: /tmp
+kafka_bridge_install_package_host_folder: /opt/redhat
+kafka_bridge_user: kafka
+kafka_bridge_install_host_symlink: /opt/kafka-bridge
+
+kafka_bridge_http_port: 9090
+kafka_bridge_http_host: 0.0.0.1
+kafka_bridge_http_cors_enabled: false
+kafka_bridge_http_cors_allowedOrigins: "*"
+kafka_bridge_http_cors_allowedMethods: GET,POST,PUT,DELETE,OPTIONS,PATCH

@@ -44,49 +44,49 @@
 #      state: latest
 #    become: yes
  
-  - name: "Create installation folder {{ kafka_install_folder }}"
+  - name: "Create installation folder {{ kafka_install_package_host_folder }}"
     file:
-      path: "{{ kafka_install_folder }}"
+      path: "{{ kafka_install_package_host_folder }}"
       state: directory
       mode: 0755
       group: "{{ kafka_user }}"
       owner: "{{ kafka_user }}" 
 
   - name: Copy kafka package to remote server
-    copy: src={{install_package_folder}}/{{ install_package_name }} dest={{ kafka_install_folder }}
+    copy: src={{kafka_install_package_source_folder}}/{{ kafka_install_package_name }} dest={{ kafka_install_package_host_folder }}
     become: yes    
 
-  - name: Unzip kafka package "{{ kafka_install_folder }}/{{ install_package_name }}"
+  - name: Unzip kafka package "{{ kafka_install_package_host_folder }}/{{ kafka_install_package_name }}"
     unarchive:
-      src: "{{ kafka_install_folder }}/{{ install_package_name }}"
-      dest: "{{ kafka_install_folder }}"      
+      src: "{{ kafka_install_package_host_folder }}/{{ kafka_install_package_name }}"
+      dest: "{{ kafka_install_package_host_folder }}"      
       remote_src: yes
       list_files: yes
     register: unarchived_list
 
-  - name: Removing {{ kafka_install_folder }}/{{ install_package_name }}
+  - name: Removing {{ kafka_install_package_host_folder }}/{{ kafka_install_package_name }}
     file:
-      path: "{{ kafka_install_folder }}/{{ install_package_name }}"
+      path: "{{ kafka_install_package_host_folder }}/{{ kafka_install_package_name }}"
       state: absent      
     become: yes
 
-  - name: Create symbolic link {{ kafka_symlink }} for {{kafka_install_folder}}/{{ unarchived_list.files[0] }}
+  - name: Create symbolic link {{ kafka_install_host_symlink }} for {{kafka_install_package_host_folder}}/{{ unarchived_list.files[0] }}
     file:
-      src: "{{kafka_install_folder}}/{{ unarchived_list.files[0] }}"
+      src: "{{kafka_install_package_host_folder}}/{{ unarchived_list.files[0] }}"
       dest: "/opt/kafka"
       state: link 
 
-  - name: Change user and group for symblink {{ kafka_symlink }}
-    command: chown -R kafka:kafka {{ kafka_symlink }}
+  - name: Change user and group for symblink {{ kafka_install_host_symlink }}
+    command: chown -R kafka:kafka {{ kafka_install_host_symlink }}
     become: true 
 
-  - name: Set KAFKA_HOME={{ kafka_symlink }} in  /home/{{ kafka_user }}/.bashrc
+  - name: Set KAFKA_HOME={{ kafka_install_host_symlink }} in  /home/{{ kafka_user }}/.bashrc
     lineinfile: 
       dest: /home/{{ kafka_user }}/.bashrc
-      line: "export KAFKA_HOME={{ kafka_symlink }}"
+      line: "export KAFKA_HOME={{ kafka_install_host_symlink }}"
 
   - name: Source Bashrc
-    action: shell source /home/kafka/.bashrc    
+    action: shell source /home/{{ kafka_user }}/.bashrc    
 
 ##  SET ZOOKEEPER SERVERS
 
@@ -107,7 +107,7 @@
   - name: Create file zookeeper.properties
     template:
       src: templates/zookeeper-properties.j2
-      dest: "{{ kafka_symlink }}/config/zookeeper.properties"      
+      dest: "{{ kafka_install_host_symlink }}/config/zookeeper.properties"      
       mode: 0755
 
   - name: Create file zookeeper.service
@@ -153,10 +153,10 @@
       group: "{{ kafka_user }}"
       owner: "{{ kafka_user }}"       
 
-  - name: Create file {{ kafka_symlink }}/config/server.properties
+  - name: Create file {{ kafka_install_host_symlink }}/config/server.properties
     template:
       src: templates/server-properties.j2
-      dest: "{{ kafka_symlink }}/config/server.properties"         
+      dest: "{{ kafka_install_host_symlink }}/config/server.properties"         
       mode: 0755
 
   - set_fact: 
@@ -165,7 +165,7 @@
 
   - name: Set zookeeper hosts in server.properties
     replace:
-      path: "{{ kafka_symlink }}/config/server.properties"
+      path: "{{ kafka_install_host_symlink }}/config/server.properties"
       regexp: 'zookeeper.connect=localhost:2181'
       replace: "zookeeper.connect={{ zookeeper_connect }}"
 

@@ -1,10 +1,12 @@
 [kafka]
-192.168.15.198 ansible_user=root
-#192.168.15.199 ansible_user=root
-#192.168.15.200 ansible_user=root
+192.168.15.200 ansible_user=root
+192.168.15.201 ansible_user=root
+192.168.15.202 ansible_user=root
 
 [zookeeper]
-192.168.15.201 ansible_user=root
-#192.168.15.202 ansible_user=root
-#192.168.15.203 ansible_user=root
+192.168.15.203 ansible_user=root
+#192.168.15.204 ansible_user=root
+#192.168.15.205 ansible_user=root
 
+[bridge]
+192.168.15.206 ansible_user=root

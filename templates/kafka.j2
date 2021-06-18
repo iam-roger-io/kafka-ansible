@@ -18,7 +18,7 @@ Environment="KAFKA_GC_LOG_OPTS={{ kafka_gc_log_opts }}"
 Environment="KAFKA_OPTS={{ kafka_opts }}"
 {% endif %}
 Type=simple
-ExecStart={{ kafka_symlink }}/bin/kafka-server-start.sh {{ kafka_symlink }}/config/server.properties
-ExecStop={{ kafka_symlink }}/bin/kafka-server-stop.sh
+ExecStart={{ kafka_install_host_symlink }}/bin/kafka-server-start.sh {{ kafka_install_host_symlink }}/config/server.properties
+ExecStop={{ kafka_install_host_symlink }}/bin/kafka-server-stop.sh
 [Install]
 WantedBy=multi-user.target

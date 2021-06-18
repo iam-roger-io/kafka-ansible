@@ -1,0 +1,12 @@
+[Unit]
+Description=AMQ Streams Kafka Bridge (broker)
+Documentation=https://strimzi.io/docs/bridge/latest/
+
+[Service]
+User={{ kafka_bridge_user }}
+Group={{ kafka_bridge_user }}
+Type=simple
+ExecStart={{ kafka_bridge_install_host_symlink }}/bin/kafka_bridge_run.sh --config-file {{ kafka_bridge_install_host_symlink }}/config/application.properties
+
+[Install]
+WantedBy=multi-user.target
