@@ -85,3 +85,12 @@ kafka_bridge_http_host: 0.0.0.1
 kafka_bridge_http_cors_enabled: false
 kafka_bridge_http_cors_allowedOrigins: "*"
 kafka_bridge_http_cors_allowedMethods: GET,POST,PUT,DELETE,OPTIONS,PATCH
+
+
+### Kafka Connect
+
+kafka_connect_install_package_name: amq-streams-1.7.0-bin.zip
+kafka_connect_install_package_source_folder: /tmp
+kafka_connect_install_package_host_folder: /opt/redhat
+kafka_connect_user: kafka
+kafka_connect_install_host_symlink: /opt/kafka
