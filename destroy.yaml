@@ -1,0 +1,107 @@
+# Rogerio L Santos
+
+---
+##  SET KAFKA BROKERS     
+
+- hosts: kafka  
+  vars_files:
+    - vars/settings.yaml
+
+  tasks: 
+
+  - name: Disable service kafka.service and ensure it is not masked
+    systemd:
+      name: kafka.service
+      enabled: no
+      masked: no       
+
+  - name: Stop kafka
+    service:
+      name: kafka.service
+      state: stopped
+
+  - name: Force systemd to reread configs (2.4 and above)
+    systemd:
+      daemon_reload: yes    
+
+  - name: "Remove data folder for kafka {{ kafka_log_dirs }}"
+    file:
+      path: "{{ kafka_log_dirs }}"
+      state: absent
+    become: yes       
+
+  - name: "Remove data kafka.service"
+    file:
+      path: "/etc/systemd/system/kafka.service"
+      state: absent
+    become: yes        
+    
+##  SET ZOOKEEPER SERVERS
+
+- hosts: zookeeper  
+  vars_files:
+    - vars/settings.yaml
+  
+  tasks:    
+
+  - name: enable service zookeeper.service and ensure it is not masked
+    systemd:
+      name: zookeeper.service
+      enabled: no
+      masked: no   
+
+  - name: Stop zookeeper
+    service:
+      name: zookeeper.service
+      state: stopped
+
+  - name: Force systemd to reread configs (2.4 and above)
+    systemd:
+      daemon_reload: yes    
+
+  - name: "Remove data folder for zookeeper {{ zookeeper_data_dir }}"
+    file:
+      path: "{{ zookeeper_data_dir }}"
+      state: absent
+    become: yes 
+    
+  - name: "Remove zookeeper.service "
+    file:
+      path: "/etc/systemd/system/zookeeper.service"
+      state: absent
+    become: yes   
+
+# PREPARE ALL HOSTS
+
+- hosts: all  
+  vars_files:
+    - vars/settings.yaml
+
+  tasks:    
+
+##   - name: 'Remove unzip'
+##     yum:
+##       name: unzip
+##       state: absent
+##     become: yes
+
+##   - name: 'Remove JVM: {{ jvm_package }}'
+##     yum:
+##       name: "{{ jvm_package }}" 
+##       state: absent
+##     become: yes    
+    
+
+  - name: "Remove symbolic link {{ kafka_install_host_symlink }}"
+    file:
+      path: "{{ kafka_install_host_symlink}}"
+      state: absent
+    become: yes        
+          
+  - name: "Remove installation folder {{ kafka_install_package_host_folder }}"
+    file:
+      path: "{{ kafka_install_package_host_folder }}"
+      state: absent
+    become: yes
+ 
+      
